@@ -25,6 +25,7 @@ class ViewController: UIViewController {
     //Temporary empty Cached shows
     var cachedShows=[Show]()
     
+    var lastFetchedPage=0
     let maxCacheSize=10
     var isLastPage=false
     
@@ -60,6 +61,7 @@ class ViewController: UIViewController {
 
     @IBAction func searchShowButtonPressed(_ sender: Any) {
         print(Realm.Configuration.defaultConfiguration.fileURL)
+        
         for searchIndex in self.searchIndexes{
             print("Cached page:\(searchIndex.page)")
         }
@@ -73,20 +75,19 @@ class ViewController: UIViewController {
 extension ViewController{
     
     fileprivate func fetch(_ Page:Int){
-        var lastFetchedPage:Int=0
-
+        
         if (!isLastPage && maxCacheSize>lastFetchedPage){
             //Call method in main queue (all updated values reside in main)
             workerQueue.async {[weak self] in
                 //request page
-                self?.loadShowsBy(page:lastFetchedPage) {[weak self](shows, page,isEnd,status) in
+                self?.loadShowsBy(page:(self?.lastFetchedPage)!) {[weak self](shows, page,isEnd,status) in
                     defer{
                         //Check if last page reached from request?
                         self?.isLastPage=isEnd
                         
                         if !isEnd{
                             // recursively fetch next page
-                            self?.fetch(lastFetchedPage)
+                            self?.fetch((self?.lastFetchedPage)!)
                         }
                         
                     }//defer
@@ -97,12 +98,12 @@ extension ViewController{
                         //Serial user reside
                         DispatchQueue.main.async {
                             //Do some database operation here after page read
-                            self?.realm_addSearchIndex(page: lastFetchedPage, shows: shows)
+                            self?.realm_addSearchIndex(page: (self?.lastFetchedPage)!, shows: shows)
                         }
                     }//if New shows
                     
                     //Get next page
-                    lastFetchedPage += 1
+                    self?.lastFetchedPage += 1
                     
                     
                 }//loadByShows
