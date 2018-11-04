@@ -10,31 +10,84 @@ import UIKit
 import Alamofire
 import RealmSwift
 
+//MARK:- Main Viewcontroller class
 class ViewController: UIViewController {
     
+    //MARK:- Visible Controls
+    @IBOutlet weak var showIndexStepper: UIStepper!
     @IBOutlet weak var showTableView:UITableView!
     
+    //MARK:- Properties to scroll shows with the stepper / tableview
+    //Fixed cell height
+    
+    //Normally the height of the tableView should be recalculated dynamically
+    //In this case it is a fixed layout from Storyboard
+    let fixedCellHeight:CGFloat=65
+    let maxVisibleCells:Int=20
+    
+    
+    //cached shows for table view
+    private var cachedShows=[RealmShow]()
+    
+    //The showTailIndex points to the lower end of the show-stack
+    private var showTailIndex:Int=0{
+        willSet{
+            //illegal index
+            guard newValue>=0 else {return}
+            
+            //Calculate upper range für new index
+            let upperRange = newValue + maxVisibleCells
+            
+            print("Upper range:\(upperRange)")
+            
+            //Check if new index is in local database
+            if searchShows.count >= upperRange && (searchIndexes.count>0){
+                //Query the requested subset
+                let realmShows = try! Realm().objects(RealmShow.self)
+                //Clear cachedShows
+                cachedShows.removeAll(keepingCapacity: true)
+                for i in newValue...upperRange{
+                   let realmShow=realmShows[i]
+                   cachedShows.append(realmShow)
+                }
+              showTableView.reloadData()
+            //Reload new page from endpoint
+            } else {
+                print("New shows should be reloaded - because not found in local database")
+                reloadRealmShowsFromAPI()
+            }
+        }
+    }
+    
+    //MARK:- Properties for cache load
     //used http Endpoints
     private let showsEndpoint="http://api.tvmaze.com/shows"
     private let showsByPageEndpoint="http://api.tvmaze.com/shows?page="
     
     //No more page available at endpoint
     private let HTTP404_NO_MORE_PAGES=404
+    private let ShowsPerPage=250
+    
+    //Pages to additionally cache - increase this number to save more shows in local
+    //database
+    let maxCacheSize=1
+    
+    // This will be the calculated value of the top stack page
+    var incrementalCacheSize=0
+    
+    //These properties need to be strong since async calls
+    //Signal lastPage loaded
+    var isLastPage=false
+    //Return from async read operation
+    var lastFetchedPage=0
+    
+    //Async queue for loading the pages through SearchIndex in background tasks
+    let workerQueue = DispatchQueue(label: "com.afapps+.workerQueue", qos: DispatchQoS.background)
+    
+    //MARK:- Realm properties
     
     //Realm schema constant - increment this value each time when the structure of the RealmShow has been changed
     let realmSchema:UInt64=3
-    
-    let workerQueue = DispatchQueue(label: "com.afapps+.workerQueue", qos: DispatchQoS.background)
-    
-    //Temporary empty Cached shows
-    var cachedShows=[Show]()
-    
-    
-    let maxCacheSize=10
-    var incrementalCacheSize=0
-    
-    var isLastPage=false
-    var lastFetchedPage=0
     
     lazy var realm:Realm={
         
@@ -61,41 +114,78 @@ class ViewController: UIViewController {
     }()
     
     //Get all pages from SearchIndex in database
-    lazy var searchIndexes: Results<RealmSearchIndex> = { self.realm.objects(RealmSearchIndex.self) }()
+    var searchIndexes: Results<RealmSearchIndex> { return self.realm.objects(RealmSearchIndex.self)
+    }
+    
+    //Get all shows from database
+    var searchShows:Results<RealmShow>{
+        return self.realm.objects(RealmShow.self)
+    }
+    
+    
+    //MARK: - ViewController Methods
+    
+    func reloadRealmShowsFromAPI(){
+        //Get database directory for realm browser
+       // print(Realm.Configuration.defaultConfiguration.fileURL)
+        
+        //Calculate page from requested show
+        let page=Int(showTailIndex/ShowsPerPage)+1
+        
+        //Fetch pages starting with the requested uncached page
+        lastFetchedPage=page
+        
+        //incremental cachSize to set top stack page limit
+        incrementalCacheSize=lastFetchedPage+maxCacheSize
+        
+        //Load new shows into the database
+        fetch(lastFetchedPage)
+    }
+   
+    //MARK:- ViewController Overridables
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
     
-        //Connecting Controller to tableView
+        //Connecting Controller to the tableView
         showTableView.delegate=self
         showTableView.dataSource=self
         
+        //Refresh table view by setting the default/last value
+        let appDelegate=UIApplication.shared.delegate as! AppDelegate
+        let appDefaults=appDelegate.loaddAppDefaults()
         
+        showTailIndex=appDefaults.lastShowIndex
     }
     
-    
-
-    @IBAction func searchShowButtonPressed(_ sender: Any) {
-        //Get database directory for realm browser
-        print(Realm.Configuration.defaultConfiguration.fileURL)
-       
-        //Fetch pages starting with the next uncached page
-        lastFetchedPage=searchIndexes.count==0 ? 0 : searchIndexes.count+1
-        //Set incremental cachSize
-        incrementalCacheSize=searchIndexes.count+maxCacheSize
+    //In IOS-Simulator this will not called -> pListInfo-Entry Background-Mode = NO
+    override func viewWillDisappear(_ animated: Bool) {
+        let appDelegate=UIApplication.shared.delegate as! AppDelegate
+        //Save app defaults
+        appDelegate.saveAppDefaults(AppDefaults(lastShowIndex:showTailIndex))
         
-        fetch(lastFetchedPage)
+        super.viewWillDisappear(animated)
+    }
+    
+    //MARK:- Action methods
+    @IBAction func showIndexButtonTouched(_ sender: Any) {
+        showTailIndex=Int(showIndexStepper.value)
+        print("Stepper value:\(showTailIndex) + ")
+        
+        //Save changes to UserDefault - Only  a test
+        //>>>>>>>>> This should be used in AppDelegate Terminate
+        let appDelegate=UIApplication.shared.delegate as! AppDelegate
+        //Save app defaults
+        appDelegate.saveAppDefaults(AppDefaults(lastShowIndex:showTailIndex))
     }
     
 }
 
-
+//MARK:- Async Request pages methods
 extension ViewController{
-    
     fileprivate func fetch(_ Page:Int){
-        
-        if (!isLastPage && incrementalCacheSize>=lastFetchedPage){
+        if (!isLastPage && incrementalCacheSize>lastFetchedPage){
             //Call method in main queue (all updated values reside in main)
             workerQueue.async {[weak self] in
                 //request page
@@ -108,19 +198,16 @@ extension ViewController{
                             // recursively fetch next page
                             self?.fetch((self?.lastFetchedPage)!)
                         }
-                        
                     }//defer
                     
                     //Append new shows to existing >>not threadsafe"
                     if let shows = shows{
-                        self?.cachedShows += shows
                         //Serial user reside
                         DispatchQueue.main.async {
-                            //Do some database operation here after page read
-                            self?.realm_addSearchIndex(page: (self?.lastFetchedPage)!, shows: shows)
-                            
+                            //Add shows to the database
+                            self?.addShowsFrom(page: (self?.lastFetchedPage)!, shows: shows)
                         }
-                    }//if New shows
+                    }//end of if let shows
                     
                     //Get next page
                     self?.lastFetchedPage += 1
@@ -132,6 +219,7 @@ extension ViewController{
         }else{
             DispatchQueue.main.async {
                 //Do some operations after last page read
+                
             }
             
         }
@@ -191,7 +279,7 @@ extension ViewController{
 //MARK:- Realm database methods
 extension ViewController{
     
-    func realm_addSearchIndex(page:Int,shows:[Show]){
+    func addShowsFrom(page:Int,shows:[Show]){
         do {
             try realm.write {
                 let newIndex = RealmSearchIndex()
@@ -217,7 +305,6 @@ extension ViewController{
                         
                         newShow.image=image
                         
-                        
                         //Only the first genre type of the show will be stored
                         if let genres = show.genres, genres.count>0{
                             newShow.genre=genres[0]
@@ -228,60 +315,30 @@ extension ViewController{
                     
                 }//end of for shows
             }//end of realm write
-        
-        
-        }catch let error{
+        }catch _{
             
         }
-        
-        
     }//end of realm_addSearchIndex
-    
-    
 }//end of realm method extension
 
 
-
+//MARK:- TableView methods
 extension ViewController:UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 0
+        return cachedShows.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "showCell")
+        //Just for unit tests - Read the RealmShow object
+        cell?.textLabel?.text=cachedShows[indexPath.row].name
+        cell?.detailTextLabel?.text="\(cachedShows[indexPath.row].id)"
         return cell!
     }
     
-    
-    //Möglichkeit 1: eigenen View programmtechnisch anlegen oder über NIB-File
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if tableView.headerView(forSection: section)==nil{
-            
-            let header = UIView()
-            let label = UILabel()
-            label.font = UIFont(name: "Futura", size: 38)!
-            label.textColor = UIColor.green
-            label.text="Header in grün"
-            header.addSubview(label)
-            return header
-            
-        }else{
-            
-            return tableView.headerView(forSection: section)
-            
-        }
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        //Force fixed cell height
+        return fixedCellHeight
     }
-    
-    
-    //Möglichkeit 2: Nutze den bereits vorhandenen Standard Header mit View
-    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-        
-        if let header = view as? UITableViewHeaderFooterView{
-            header.textLabel?.font = UIFont(name: "Futura", size: 38)!
-            header.textLabel?.textColor = UIColor.green
-        }
-        
-    }
-    
     
 }

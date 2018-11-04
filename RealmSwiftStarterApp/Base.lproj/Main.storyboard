@@ -48,32 +48,32 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vKB-Zu-gAI">
-                                <rect key="frame" x="139" y="598" width="97" height="30"/>
-                                <state key="normal" title="Search Shows"/>
+                            <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" autorepeat="NO" maximumValue="1000" stepValue="20" translatesAutoresizingMaskIntoConstraints="NO" id="7wz-gr-U96">
+                                <rect key="frame" x="140.5" y="602" width="94" height="29"/>
                                 <connections>
-                                    <action selector="searchShowButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="0GC-Nn-ljn"/>
+                                    <action selector="showIndexButtonTouched:" destination="BYZ-38-t0r" eventType="valueChanged" id="qtW-RQ-ChO"/>
                                 </connections>
-                            </button>
+                            </stepper>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="vKB-Zu-gAI" secondAttribute="bottom" constant="39" id="BZm-8V-34u"/>
                             <constraint firstItem="VY9-SK-ymd" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="HVx-Mv-VE9"/>
-                            <constraint firstItem="vKB-Zu-gAI" firstAttribute="top" secondItem="VY9-SK-ymd" secondAttribute="bottom" constant="41" id="N7t-oj-BCF"/>
+                            <constraint firstItem="7wz-gr-U96" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="MGS-iX-AB5"/>
                             <constraint firstItem="VY9-SK-ymd" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="QkY-9y-x0d"/>
-                            <constraint firstItem="vKB-Zu-gAI" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Rc5-rO-ukC"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="VY9-SK-ymd" secondAttribute="trailing" constant="16" id="U4B-bf-Zo7"/>
+                            <constraint firstItem="7wz-gr-U96" firstAttribute="top" secondItem="VY9-SK-ymd" secondAttribute="bottom" constant="45" id="jmf-yO-yaR"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="7wz-gr-U96" secondAttribute="bottom" constant="36" id="xYN-wh-4cc"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
+                        <outlet property="showIndexStepper" destination="7wz-gr-U96" id="wRp-hG-PRi"/>
                         <outlet property="showTableView" destination="VY9-SK-ymd" id="Yaz-VM-2UT"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="128.80000000000001" y="133.5832083958021"/>
+            <point key="canvasLocation" x="30" y="53"/>
         </scene>
     </scenes>
 </document>

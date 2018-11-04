@@ -9,11 +9,29 @@
 import UIKit
 import RealmSwift
 
+//App Defaults storage
+struct AppDefaults{
+    static let lastShowIndexKey="lastShowIndex"
+    let lastShowIndex:Int //Keeps track of last cached shows in table view
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     
+    //MARK:-UserDefaults
+    let saveAppDefaults:(AppDefaults)->Void={
+        UserDefaults.standard.set($0.lastShowIndex, forKey: AppDefaults.lastShowIndexKey)
+        UserDefaults.standard.synchronize()
+    }
+    
+    let loaddAppDefaults:()->AppDefaults={
+        let index = UserDefaults.standard.integer(forKey:AppDefaults.lastShowIndexKey)
+        return AppDefaults(lastShowIndex: index)
+    }
+    
+    //MARK:- AppDelegate methods
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         return true
