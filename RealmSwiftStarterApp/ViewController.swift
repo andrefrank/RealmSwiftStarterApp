@@ -22,7 +22,7 @@ class ViewController: UIViewController {
     private let HTTP404_NO_MORE_PAGES=404
     
     //Realm schema constant - increment this value each time when the structure of the RealmShow has been changed
-    let realmSchema:UInt64=2
+    let realmSchema:UInt64=3
     
     let workerQueue = DispatchQueue(label: "com.afapps+.workerQueue", qos: DispatchQoS.background)
     
@@ -200,30 +200,27 @@ extension ViewController{
                 for show in shows{
                     //create RealmShow only with existing Show_id
                     if let showId = show.id{
+                        let newShow = RealmShow()
                         
-                         let newShow = RealmShow()
                         newShow.pageIndex=newIndex
                         newShow.id=showId
                         newShow.name=show.name
                         newShow.premiered=show.premiered
-                        
-                        let rating = RealmRating()
-                        rating.average=show.rating?.average ?? 0
-                        
-                        newShow.rating=rating
+                        newShow.rating=show.rating?.average ?? 0.0
                         newShow.status=show.status
-                        
+                        newShow.summary=show.summary
+                        newShow.type=show.type
+                    
                         let image=RealmImage()
                         image.setValue(show.image?.medium!, forKey: "medium")
                         image.setValue(show.image?.original!, forKey: "original")
                         
                         newShow.image=image
                         
-                        newShow.summary=show.summary
-                        newShow.type=show.type
                         
-                        if let genres = show.genres{
-                            newShow.genres=genres
+                        //Only the first genre type of the show will be stored
+                        if let genres = show.genres, genres.count>0{
+                            newShow.genre=genres[0]
                         }
                         //Add new object to database
                         realm.add(newShow)
