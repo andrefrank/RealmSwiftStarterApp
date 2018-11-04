@@ -21,6 +21,9 @@ class ViewController: UIViewController {
     //No more page available at endpoint
     private let HTTP404_NO_MORE_PAGES=404
     
+    //Realm schema constant - increment this value each time when the structure of the RealmShow has been changed
+    let realmSchema:UInt64=2
+    
     let workerQueue = DispatchQueue(label: "com.afapps+.workerQueue", qos: DispatchQoS.background)
     
     //Temporary empty Cached shows
@@ -39,13 +42,13 @@ class ViewController: UIViewController {
         let config = Realm.Configuration(
             // Set the new schema version. This must be greater than the previously used
             // version (if you've never set a schema version before, the version is 0).
-            schemaVersion: 1,
+            schemaVersion: self.realmSchema,
             
             // Set the block which will be called automatically when opening a Realm with
             // a schema version lower than the one set above
             migrationBlock: { migration, oldSchemaVersion in
                 // We haven’t migrated anything yet, so oldSchemaVersion == 0
-                if (oldSchemaVersion < 1) {
+                if (oldSchemaVersion < self.realmSchema) {
                     // Nothing to do!
                     // Realm will automatically detect new properties and removed properties
                     // And will update the schema on disk automatically
@@ -56,16 +59,25 @@ class ViewController: UIViewController {
         Realm.Configuration.defaultConfiguration = config
         return try! Realm()
     }()
-        
+    
+    //Get all pages from SearchIndex in database
     lazy var searchIndexes: Results<RealmSearchIndex> = { self.realm.objects(RealmSearchIndex.self) }()
-   
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
     
+        //Connecting Controller to tableView
+        showTableView.delegate=self
+        showTableView.dataSource=self
+        
+        
     }
+    
+    
 
     @IBAction func searchShowButtonPressed(_ sender: Any) {
+        //Get database directory for realm browser
         print(Realm.Configuration.defaultConfiguration.fileURL)
        
         //Fetch pages starting with the next uncached page
@@ -83,7 +95,7 @@ extension ViewController{
     
     fileprivate func fetch(_ Page:Int){
         
-        if (!isLastPage && incrementalCacheSize>lastFetchedPage){
+        if (!isLastPage && incrementalCacheSize>=lastFetchedPage){
             //Call method in main queue (all updated values reside in main)
             workerQueue.async {[weak self] in
                 //request page
@@ -106,6 +118,7 @@ extension ViewController{
                         DispatchQueue.main.async {
                             //Do some database operation here after page read
                             self?.realm_addSearchIndex(page: (self?.lastFetchedPage)!, shows: shows)
+                            
                         }
                     }//if New shows
                     
@@ -208,7 +221,6 @@ extension ViewController{
                         
                         newShow.summary=show.summary
                         newShow.type=show.type
-                        newShow.updated=show.updated ?? 0
                         
                         if let genres = show.genres{
                             newShow.genres=genres
@@ -267,9 +279,11 @@ extension ViewController:UITableViewDelegate,UITableViewDataSource{
     //Möglichkeit 2: Nutze den bereits vorhandenen Standard Header mit View
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
         
-        let header = view as! UITableViewHeaderFooterView
-        header.textLabel?.font = UIFont(name: "Futura", size: 38)!
-        header.textLabel?.textColor = UIColor.green
+        if let header = view as? UITableViewHeaderFooterView{
+            header.textLabel?.font = UIFont(name: "Futura", size: 38)!
+            header.textLabel?.textColor = UIColor.green
+        }
+        
     }
     
     

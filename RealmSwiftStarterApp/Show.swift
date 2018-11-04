@@ -44,7 +44,7 @@ class RealmShow:Object{
      @objc dynamic var rating: RealmRating?
      @objc dynamic var image: RealmImage?
      @objc dynamic var summary: String?
-     @objc dynamic var updated: Int=0
+     //@objc dynamic var updated: Int=0
     
     //holds a list of compatible genre types
     private let _backingGenres=List<RealmGenre>()
@@ -85,11 +85,11 @@ struct Show: Codable {
     let rating: Rating?
     let image: Image?
     let summary: String?
-    let updated: Int?
+    //let updated: Int?
     
     
     enum CodingKeys: String, CodingKey {
-        case id, /*url,*/ name, type, genres, status, premiered, rating, image, summary, updated
+        case id, /*url,*/ name, type, genres, status, premiered, rating, image, summary/*, updated*/
     }
 }
 
