@@ -36,7 +36,7 @@ class RealmGenre:Object{
 //class for the result of the search Index with 'shows'
 class RealmShow:Object{
      @objc dynamic var id: Int=0
-     @objc dynamic var url: String?
+     //@objc dynamic var url: String?
      @objc dynamic var name:String?
      @objc dynamic var type: String?
      @objc dynamic var status: String?
@@ -77,7 +77,7 @@ class RealmShow:Object{
 
 struct Show: Codable {
     let id: Int?
-    let url: String?
+    //let url: String?
     let name, type: String?
     let genres: [String]?
     let status: String?
@@ -89,7 +89,7 @@ struct Show: Codable {
     
     
     enum CodingKeys: String, CodingKey {
-        case id, url, name, type, genres, status, premiered, rating, image, summary, updated
+        case id, /*url,*/ name, type, genres, status, premiered, rating, image, summary, updated
     }
 }
 

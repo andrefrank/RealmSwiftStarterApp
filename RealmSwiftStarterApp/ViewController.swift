@@ -12,6 +12,7 @@ import RealmSwift
 
 class ViewController: UIViewController {
     
+    @IBOutlet weak var showTableView:UITableView!
     
     //used http Endpoints
     private let showsEndpoint="http://api.tvmaze.com/shows"
@@ -25,15 +26,20 @@ class ViewController: UIViewController {
     //Temporary empty Cached shows
     var cachedShows=[Show]()
     
-    var lastFetchedPage=0
+    
     let maxCacheSize=10
+    var incrementalCacheSize=0
+    
     var isLastPage=false
+    var lastFetchedPage=0
     
     lazy var realm:Realm={
+        
+        //See also notes from realm documentation
         let config = Realm.Configuration(
             // Set the new schema version. This must be greater than the previously used
             // version (if you've never set a schema version before, the version is 0).
-            schemaVersion: 2,
+            schemaVersion: 1,
             
             // Set the block which will be called automatically when opening a Realm with
             // a schema version lower than the one set above
@@ -61,12 +67,13 @@ class ViewController: UIViewController {
 
     @IBAction func searchShowButtonPressed(_ sender: Any) {
         print(Realm.Configuration.defaultConfiguration.fileURL)
-        
-        for searchIndex in self.searchIndexes{
-            print("Cached page:\(searchIndex.page)")
-        }
+       
         //Fetch pages starting with the next uncached page
-        fetch(searchIndexes.count+1)
+        lastFetchedPage=searchIndexes.count==0 ? 0 : searchIndexes.count+1
+        //Set incremental cachSize
+        incrementalCacheSize=searchIndexes.count+maxCacheSize
+        
+        fetch(lastFetchedPage)
     }
     
 }
@@ -76,7 +83,7 @@ extension ViewController{
     
     fileprivate func fetch(_ Page:Int){
         
-        if (!isLastPage && maxCacheSize>lastFetchedPage){
+        if (!isLastPage && incrementalCacheSize>lastFetchedPage){
             //Call method in main queue (all updated values reside in main)
             workerQueue.async {[weak self] in
                 //request page
@@ -111,7 +118,7 @@ extension ViewController{
             
         }else{
             DispatchQueue.main.async {
-                //Do some database operations after last page read
+                //Do some operations after last page read
             }
             
         }
@@ -180,6 +187,7 @@ extension ViewController{
                 for show in shows{
                     //create RealmShow only with existing Show_id
                     if let showId = show.id{
+                        
                          let newShow = RealmShow()
                         newShow.pageIndex=newIndex
                         newShow.id=showId
@@ -205,9 +213,7 @@ extension ViewController{
                         if let genres = show.genres{
                             newShow.genres=genres
                         }
-                        
-                        
-                        
+                        //Add new object to database
                         realm.add(newShow)
                     }
                     
@@ -223,6 +229,48 @@ extension ViewController{
     }//end of realm_addSearchIndex
     
     
-    
 }//end of realm method extension
 
+
+
+extension ViewController:UITableViewDelegate,UITableViewDataSource{
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 0
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "showCell")
+        return cell!
+    }
+    
+    
+    //Möglichkeit 1: eigenen View programmtechnisch anlegen oder über NIB-File
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if tableView.headerView(forSection: section)==nil{
+            
+            let header = UIView()
+            let label = UILabel()
+            label.font = UIFont(name: "Futura", size: 38)!
+            label.textColor = UIColor.green
+            label.text="Header in grün"
+            header.addSubview(label)
+            return header
+            
+        }else{
+            
+            return tableView.headerView(forSection: section)
+            
+        }
+    }
+    
+    
+    //Möglichkeit 2: Nutze den bereits vorhandenen Standard Header mit View
+    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        
+        let header = view as! UITableViewHeaderFooterView
+        header.textLabel?.font = UIFont(name: "Futura", size: 38)!
+        header.textLabel?.textColor = UIColor.green
+    }
+    
+    
+}
