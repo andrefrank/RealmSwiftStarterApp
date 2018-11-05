@@ -44,29 +44,35 @@ class ViewController: UIViewController {
             
             print("Upper range:\(upperRange)")
             
-            //>>>>>>  Query the RealmShow objects
-            var realmShows:Results<RealmShow>
-            do{
-                realmShows = try Realm().objects(RealmShow.self).filter("id <= \(upperRange)")
-            }catch let error{
-                print(error.localizedDescription)
-                return
-            }
-            //Check if query conatins the requested subset with 'id'
+            //Check if query contains the requested subset with 'id'
             //Clear cachedShows
+            guard let realmShows=getRealmShows(with: "id >= \(newValue) && id <= \(upperRange)") else {return}
             if realmShows.count>0{
                 cachedShows.removeAll(keepingCapacity: true)
+
                 for realmShow in realmShows{
                     cachedShows.append(realmShow)
                 }
                 showTableView.reloadData()
                 
+                showTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: UITableView.ScrollPosition.top, animated: true)
             //Reload new page from endpoint
             } else {
                 print("New shows should be reloaded - because not found in local database")
                 reloadRealmShowsFromAPI()
             }
         }
+    }
+    
+    func getRealmShows(with query:String)->Results<RealmShow>?{
+        
+        do{
+            return try Realm().objects(RealmShow.self).filter(query)
+        }catch let error{
+            print(error.localizedDescription)
+            return nil
+        }
+        
     }
     
     //MARK:- Properties for cache load
