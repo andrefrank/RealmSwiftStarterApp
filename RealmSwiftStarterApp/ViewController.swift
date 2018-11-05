@@ -29,27 +29,38 @@ class ViewController: UIViewController {
     //cached shows for table view
     private var cachedShows=[RealmShow]()
     
-    //The showTailIndex points to the lower end of the show-stack
+    //The showTailIndex controls the content of the tableView and the local database cache
+    private var _backingRequestedIndex:Int=0
     private var showTailIndex:Int=0{
         willSet{
             //illegal index
             guard newValue>=0 else {return}
             
+            //Store requeste index
+            _backingRequestedIndex=newValue
+            
             //Calculate upper range für new index
             let upperRange = newValue + maxVisibleCells
             
             print("Upper range:\(upperRange)")
-            //
-            //>>>>>>  Query the requested subset
-            let realmShows = try! Realm().objects(RealmShow.self)
-            if realmShows.indices.contains(newValue) && realmShows.indices.contains(upperRange){
-                //Clear cachedShows
+            
+            //>>>>>>  Query the RealmShow objects
+            var realmShows:Results<RealmShow>
+            do{
+                realmShows = try Realm().objects(RealmShow.self).filter("id <= \(upperRange)")
+            }catch let error{
+                print(error.localizedDescription)
+                return
+            }
+            //Check if query conatins the requested subset with 'id'
+            //Clear cachedShows
+            if realmShows.count>0{
                 cachedShows.removeAll(keepingCapacity: true)
-                for i in newValue...upperRange{
-                    let realmShow=realmShows[i]
+                for realmShow in realmShows{
                     cachedShows.append(realmShow)
                 }
-                 showTableView.reloadData()
+                showTableView.reloadData()
+                
             //Reload new page from endpoint
             } else {
                 print("New shows should be reloaded - because not found in local database")
@@ -86,7 +97,7 @@ class ViewController: UIViewController {
     //MARK:- Realm properties
     
     //Realm schema constant - increment this value each time when the structure of the RealmShow has been changed
-    let realmSchema:UInt64=3
+    let realmSchema:UInt64=0
     
     lazy var realm:Realm={
         
@@ -125,11 +136,9 @@ class ViewController: UIViewController {
     //MARK: - ViewController Methods
     
     func reloadRealmShowsFromAPI(){
-        //Get database directory for realm browser
-       // print(Realm.Configuration.defaultConfiguration.fileURL)
-        
+       
         //Calculate page from requested show
-        let page=Int(showTailIndex/ShowsPerPage)+1
+        let page=Int(showTailIndex/ShowsPerPage)
         
         //Fetch pages starting with the requested uncached page
         lastFetchedPage=page
@@ -155,6 +164,10 @@ class ViewController: UIViewController {
         let appDelegate=UIApplication.shared.delegate as! AppDelegate
         let appDefaults=appDelegate.loaddAppDefaults()
         
+        //Get database directory for realm browser
+        print(Realm.Configuration.defaultConfiguration.fileURL)
+        
+        
         //Update UI
         showTailIndex=appDefaults.lastShowIndex
         showIndexStepper.value=Double(showTailIndex)
@@ -174,12 +187,19 @@ class ViewController: UIViewController {
     @IBAction func showIndexButtonTouched(_ sender: Any) {
         showTailIndex=Int(showIndexStepper.value)
         print("Stepper value:\(showTailIndex) + ")
-        
+    }
+    
+    @IBAction func saveUserDefaultsButtonTouched(_ sender: Any) {
         //Save changes to UserDefault - Only  a test
         //>>>>>>>>> This should be used in AppDelegate Terminate
         let appDelegate=UIApplication.shared.delegate as! AppDelegate
         //Save app defaults
         appDelegate.saveAppDefaults(AppDefaults(lastShowIndex:showTailIndex))
+    }
+    
+    @IBAction func refreshShowsButtonTouched(_ sender: Any) {
+        //Reset tableView to the beginning of the local database
+        showTailIndex=0
     }
     
 }
@@ -219,9 +239,10 @@ extension ViewController{
             }//serial async queue
             
         }else{
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
                 //Do some operations after last page read
-                
+                //This should refresh the tableView
+                self?.showTailIndex=(self?._backingRequestedIndex)!
             }
             
         }
