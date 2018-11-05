@@ -152,11 +152,14 @@ class ViewController: UIViewController {
         showTableView.delegate=self
         showTableView.dataSource=self
         
-        //Refresh table view by setting the default/last value
+        //Restore Userdefaults
         let appDelegate=UIApplication.shared.delegate as! AppDelegate
         let appDefaults=appDelegate.loaddAppDefaults()
         
+        //Update UI
         showTailIndex=appDefaults.lastShowIndex
+        showIndexStepper.value=Double(showTailIndex)
+        
     }
     
     //In IOS-Simulator this will not called -> pListInfo-Entry Background-Mode = NO
