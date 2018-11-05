@@ -39,18 +39,17 @@ class ViewController: UIViewController {
             let upperRange = newValue + maxVisibleCells
             
             print("Upper range:\(upperRange)")
-            
-            //Check if new index is in local database
-            if searchShows.count >= upperRange && (searchIndexes.count>0){
-                //Query the requested subset
-                let realmShows = try! Realm().objects(RealmShow.self)
+            //
+            //Query the requested subset
+            let realmShows = try! Realm().objects(RealmShow.self)
+            if realmShows.indices.contains(newValue) && realmShows.indices.contains(upperRange){
                 //Clear cachedShows
                 cachedShows.removeAll(keepingCapacity: true)
                 for i in newValue...upperRange{
-                   let realmShow=realmShows[i]
-                   cachedShows.append(realmShow)
+                    let realmShow=realmShows[i]
+                    cachedShows.append(realmShow)
                 }
-              showTableView.reloadData()
+                 showTableView.reloadData()
             //Reload new page from endpoint
             } else {
                 print("New shows should be reloaded - because not found in local database")
