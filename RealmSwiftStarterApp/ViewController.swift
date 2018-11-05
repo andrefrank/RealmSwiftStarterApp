@@ -40,7 +40,7 @@ class ViewController: UIViewController {
             
             print("Upper range:\(upperRange)")
             //
-            //Query the requested subset
+            //>>>>>>  Query the requested subset
             let realmShows = try! Realm().objects(RealmShow.self)
             if realmShows.indices.contains(newValue) && realmShows.indices.contains(upperRange){
                 //Clear cachedShows
