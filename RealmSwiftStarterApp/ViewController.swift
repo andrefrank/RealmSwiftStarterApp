@@ -16,6 +16,7 @@ class ViewController: UIViewController {
     //MARK:- Visible Controls
     @IBOutlet weak var showIndexStepper: UIStepper!
     @IBOutlet weak var showTableView:UITableView!
+    @IBOutlet weak var showCountLabel: UILabel!
     
     //MARK:- Properties to scroll shows with the stepper / tableview
     //Fixed cell height
@@ -49,13 +50,15 @@ class ViewController: UIViewController {
             guard let realmShows=getRealmShows(with: "id >= \(newValue) && id <= \(upperRange)") else {return}
             if realmShows.count>0{
                 cachedShows.removeAll(keepingCapacity: true)
-
+                print("\(realmShows.count) amount of shows will be in cachedSows")
                 for realmShow in realmShows{
                     cachedShows.append(realmShow)
                 }
                 showTableView.reloadData()
                 
                 showTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: UITableView.ScrollPosition.top, animated: true)
+                showCountLabel.text="\(searchShows.count) show localy stored"
+                
             //Reload new page from endpoint
             } else {
                 print("New shows should be reloaded - because not found in local database")
@@ -206,6 +209,7 @@ class ViewController: UIViewController {
     @IBAction func refreshShowsButtonTouched(_ sender: Any) {
         //Reset tableView to the beginning of the local database
         showTailIndex=0
+        showIndexStepper.value=0
     }
     
 }
@@ -249,6 +253,7 @@ extension ViewController{
                 //Do some operations after last page read
                 //This should refresh the tableView
                 self?.showTailIndex=(self?._backingRequestedIndex)!
+                
             }
             
         }
@@ -358,16 +363,38 @@ extension ViewController:UITableViewDelegate,UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: "showCell")
-        //Just for unit tests - Read the RealmShow object
+           
+        print(indexPath.row)
+            //Just for unit tests - Read the RealmShow object
         cell?.textLabel?.text=cachedShows[indexPath.row].name
         cell?.detailTextLabel?.text="\(cachedShows[indexPath.row].id)"
+
         return cell!
     }
+    
+   
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         //Force fixed cell height
         return fixedCellHeight
     }
     
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+      
+        
+        let isReachingEnd = scrollView.contentOffset.y >= 0
+            && scrollView.contentOffset.y >= (scrollView.contentSize.height - scrollView.frame.size.height)
+    
+        if isReachingEnd{
+           
+           
+        }else if scrollView.contentOffset.y<0{
+          
+        }
+    }
+
 }

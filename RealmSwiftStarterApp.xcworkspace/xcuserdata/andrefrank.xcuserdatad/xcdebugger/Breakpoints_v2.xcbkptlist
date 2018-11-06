@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RealmSwiftStarterApp/ViewController.swift"
-            timestampString = "563145257.334265"
+            timestampString = "563233491.243331"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "154"
-            endingLineNumber = "154"
+            startingLineNumber = "157"
+            endingLineNumber = "157"
             landmarkName = "reloadRealmShowsFromAPI()"
             landmarkType = "7">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RealmSwiftStarterApp/ViewController.swift"
-            timestampString = "563145257.334754"
+            timestampString = "563233491.243922"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "235"
-            endingLineNumber = "235"
+            startingLineNumber = "239"
+            endingLineNumber = "239"
             landmarkName = "fetch(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -42,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RealmSwiftStarterApp/ViewController.swift"
-            timestampString = "563145257.335099"
+            timestampString = "563233491.2443219"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "374"
-            endingLineNumber = "374">
+            startingLineNumber = "401"
+            endingLineNumber = "401">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -56,11 +56,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RealmSwiftStarterApp/ViewController.swift"
-            timestampString = "563145257.335409"
+            timestampString = "563233491.244686"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "153"
-            endingLineNumber = "153"
+            startingLineNumber = "156"
+            endingLineNumber = "156"
             landmarkName = "reloadRealmShowsFromAPI()"
             landmarkType = "7">
          </BreakpointContent>
@@ -72,11 +72,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RealmSwiftStarterApp/ViewController.swift"
-            timestampString = "563145257.335755"
+            timestampString = "563233491.245088"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "40"
-            endingLineNumber = "40"
+            startingLineNumber = "41"
+            endingLineNumber = "41"
             landmarkName = "showTailIndex"
             landmarkType = "24">
          </BreakpointContent>
@@ -88,11 +88,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RealmSwiftStarterApp/ViewController.swift"
-            timestampString = "563145257.33611"
+            timestampString = "563233491.245491"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "171"
-            endingLineNumber = "171"
+            startingLineNumber = "174"
+            endingLineNumber = "174"
             landmarkName = "viewDidLoad()"
             landmarkType = "7">
          </BreakpointContent>
@@ -104,7 +104,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RealmSwiftStarterApp/AppDelegate.swift"
-            timestampString = "563145046.9542969"
+            timestampString = "563233491.2459069"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "26"
@@ -120,11 +120,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RealmSwiftStarterApp/ViewController.swift"
-            timestampString = "563145257.33648"
+            timestampString = "563233491.245973"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "185"
-            endingLineNumber = "185"
+            startingLineNumber = "188"
+            endingLineNumber = "188"
             landmarkName = "viewWillDisappear(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -136,11 +136,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RealmSwiftStarterApp/ViewController.swift"
-            timestampString = "563145257.33684"
+            timestampString = "563233491.2463731"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "62"
-            endingLineNumber = "62"
+            startingLineNumber = "65"
+            endingLineNumber = "65"
             landmarkName = "showTailIndex"
             landmarkType = "24">
          </BreakpointContent>
@@ -152,11 +152,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RealmSwiftStarterApp/ViewController.swift"
-            timestampString = "563145257.337148"
+            timestampString = "563233491.246763"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "43"
-            endingLineNumber = "43"
+            startingLineNumber = "44"
+            endingLineNumber = "44"
             landmarkName = "showTailIndex"
             landmarkType = "24">
          </BreakpointContent>
@@ -168,60 +168,76 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RealmSwiftStarterApp/ViewController.swift"
-            timestampString = "563145257.3374521"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "147"
-            endingLineNumber = "147"
-            landmarkName = "reloadRealmShowsFromAPI()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "RealmSwiftStarterApp/ViewController.swift"
-            timestampString = "563145257.337761"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "174"
-            endingLineNumber = "174"
-            landmarkName = "viewDidLoad()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "RealmSwiftStarterApp/ViewController.swift"
-            timestampString = "563145257.338068"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "178"
-            endingLineNumber = "178"
-            landmarkName = "viewDidLoad()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "RealmSwiftStarterApp/ViewController.swift"
-            timestampString = "563145257.338587"
+            timestampString = "563233491.247173"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "150"
             endingLineNumber = "150"
             landmarkName = "reloadRealmShowsFromAPI()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "RealmSwiftStarterApp/ViewController.swift"
+            timestampString = "563233491.247589"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "177"
+            endingLineNumber = "177"
+            landmarkName = "viewDidLoad()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "RealmSwiftStarterApp/ViewController.swift"
+            timestampString = "563233491.248041"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "181"
+            endingLineNumber = "181"
+            landmarkName = "viewDidLoad()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "RealmSwiftStarterApp/ViewController.swift"
+            timestampString = "563233491.248454"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "153"
+            endingLineNumber = "153"
+            landmarkName = "reloadRealmShowsFromAPI()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "RealmSwiftStarterApp/ViewController.swift"
+            timestampString = "563233491.248804"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "197"
+            endingLineNumber = "197"
+            landmarkName = "showIndexButtonTouched(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
