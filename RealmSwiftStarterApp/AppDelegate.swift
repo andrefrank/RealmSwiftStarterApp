@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     //MARK:-UserDefaults
     let saveAppDefaults:(AppDefaults)->Void={
-        UserDefaults.standard.set($0.lastShowIndex, forKey: AppDefaults.lastShowIndexKey)
+        UserDefaults.standard.set($0.lastShowIndex, forKey:AppDefaults.lastShowIndexKey )
         UserDefaults.standard.synchronize()
     }
     

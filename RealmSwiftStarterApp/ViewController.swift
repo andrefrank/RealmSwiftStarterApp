@@ -25,39 +25,37 @@ class ViewController: UIViewController {
     //In this case it is a fixed layout from Storyboard
     let fixedCellHeight:CGFloat=65
     let maxVisibleCells:Int=20
+   
     
-    
-    //cached shows for table view
-    private var cachedShows=[RealmShow]()
+    //cached shows for table view (fixed size
+    private var cachedShows=Array<RealmShow>()
     
     //The showTailIndex controls the content of the tableView and the local database cache
     private var _backingRequestedIndex:Int=0
     private var showTailIndex:Int=0{
         willSet{
-            //illegal index
+            //illegal show index
             guard newValue>=0 else {return}
             
-            //Store requeste index
+            //Store requeste show index
             _backingRequestedIndex=newValue
             
-            //Calculate upper range für new index
-            let upperRange = newValue + maxVisibleCells
+            //Check if queried index+maxVisibleShows is within the same page
             
-            print("Upper range:\(upperRange)")
             
-            //Check if query contains the requested subset with 'id'
+            //Check if query contains the requested subset with lower & upper 'id'
             //Clear cachedShows
-            guard let realmShows=getRealmShows(with: "id >= \(newValue) && id <= \(upperRange)") else {return}
+            guard let realmShows=getRealmShows(with: "id == \(newValue) ") else {return}
+            //The requested show-id range is available
             if realmShows.count>0{
                 cachedShows.removeAll(keepingCapacity: true)
                 print("\(realmShows.count) amount of shows will be in cachedSows")
-                for realmShow in realmShows{
-                    cachedShows.append(realmShow)
-                }
+                cachedShows += realmShows
+                //Refrehs table view
                 showTableView.reloadData()
-                
+                //Set top position to the requested showtailIndex
                 showTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: UITableView.ScrollPosition.top, animated: true)
-                showCountLabel.text="\(searchShows.count) show localy stored"
+                showCountLabel.text="\(searchShows.count) shows localy stored"
                 
             //Reload new page from endpoint
             } else {
@@ -87,7 +85,7 @@ class ViewController: UIViewController {
     private let HTTP404_NO_MORE_PAGES=404
     private let ShowsPerPage=250
     
-    //Pages to additionally cache - increase this number to save more shows in local
+    //Pages to additionally cache - increase this number to save one more page in local
     //database
     let maxCacheSize=1
     
@@ -147,7 +145,14 @@ class ViewController: UIViewController {
     func reloadRealmShowsFromAPI(){
        
         //Calculate page from requested show
-        let page=Int(showTailIndex/ShowsPerPage)
+        let page=Int(showTailIndex/ShowsPerPage)+1
+        
+        for searcheIndex in searchIndexes{
+            if searcheIndex.page==page{
+                print("Page already in local database - show couldn't be found")
+                return
+            }
+        }
         
         //Fetch pages starting with the requested uncached page
         lastFetchedPage=page
@@ -209,6 +214,7 @@ class ViewController: UIViewController {
     @IBAction func refreshShowsButtonTouched(_ sender: Any) {
         //Reset tableView to the beginning of the local database
         showTailIndex=0
+        //Update stepper
         showIndexStepper.value=0
     }
     
@@ -216,9 +222,10 @@ class ViewController: UIViewController {
 
 //MARK:- Async Request pages methods
 extension ViewController{
+    //This method can be used to asynchronoulsy fetch pages
     fileprivate func fetch(_ Page:Int){
         if (!isLastPage && incrementalCacheSize>lastFetchedPage){
-            //Call method in main queue (all updated values reside in main)
+            //Asynchronously put all fetch request in the serial queue
             workerQueue.async {[weak self] in
                 //request page
                 self?.loadShowsBy(page:(self?.lastFetchedPage)!) {[weak self](shows, page,isEnd,status) in
@@ -251,7 +258,8 @@ extension ViewController{
         }else{
             DispatchQueue.main.async { [weak self] in
                 //Do some operations after last page read
-                //This should refresh the tableView
+                
+                //This should refresh the tableView with the new content
                 self?.showTailIndex=(self?._backingRequestedIndex)!
                 
             }
