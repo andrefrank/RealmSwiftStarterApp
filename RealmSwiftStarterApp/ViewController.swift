@@ -45,124 +45,55 @@ class ViewController: UIViewController {
             
             //Check if query contains the requested subset with lower & upper 'id'
             //Clear cachedShows
-            guard let realmShows=getRealmShows(with: "id == \(newValue) ") else {return}
-            //The requested show-id range is available
-            if realmShows.count>0{
-                cachedShows.removeAll(keepingCapacity: true)
-                print("\(realmShows.count) amount of shows will be in cachedSows")
-                cachedShows += realmShows
-                //Refrehs table view
-                showTableView.reloadData()
-                //Set top position to the requested showtailIndex
-                showTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: UITableView.ScrollPosition.top, animated: true)
-                showCountLabel.text="\(searchShows.count) shows localy stored"
-                
-            //Reload new page from endpoint
-            } else {
-                print("New shows should be reloaded - because not found in local database")
-                reloadRealmShowsFromAPI()
-            }
-        }
-    }
-    
-    func getRealmShows(with query:String)->Results<RealmShow>?{
-        
-        do{
-            return try Realm().objects(RealmShow.self).filter(query)
-        }catch let error{
-            print(error.localizedDescription)
-            return nil
-        }
-        
-    }
-    
-    //MARK:- Properties for cache load
-    //used http Endpoints
-    private let showsEndpoint="http://api.tvmaze.com/shows"
-    private let showsByPageEndpoint="http://api.tvmaze.com/shows?page="
-    
-    //No more page available at endpoint
-    private let HTTP404_NO_MORE_PAGES=404
-    private let ShowsPerPage=250
-    
-    //Pages to additionally cache - increase this number to save one more page in local
-    //database
-    let maxCacheSize=1
-    
-    // This will be the calculated value of the top stack page
-    var incrementalCacheSize=0
-    
-    //These properties need to be strong since async calls
-    //Signal lastPage loaded
-    var isLastPage=false
-    //Return from async read operation
-    var lastFetchedPage=0
-    
-    //Async queue for loading the pages through SearchIndex in background tasks
-    let workerQueue = DispatchQueue(label: "com.afapps+.workerQueue", qos: DispatchQoS.background)
-    
-    //MARK:- Realm properties
-    
-    //Realm schema constant - increment this value each time when the structure of the RealmShow has been changed
-    let realmSchema:UInt64=0
-    
-    lazy var realm:Realm={
-        
-        //See also notes from realm documentation
-        let config = Realm.Configuration(
-            // Set the new schema version. This must be greater than the previously used
-            // version (if you've never set a schema version before, the version is 0).
-            schemaVersion: self.realmSchema,
             
-            // Set the block which will be called automatically when opening a Realm with
-            // a schema version lower than the one set above
-            migrationBlock: { migration, oldSchemaVersion in
-                // We haven’t migrated anything yet, so oldSchemaVersion == 0
-                if (oldSchemaVersion < self.realmSchema) {
-                    // Nothing to do!
-                    // Realm will automatically detect new properties and removed properties
-                    // And will update the schema on disk automatically
-                }
-        })
-        
-        // Tell Realm to use this new configuration object for the default Realm
-        Realm.Configuration.defaultConfiguration = config
-        return try! Realm()
-    }()
-    
-    //Get all pages from SearchIndex in database
-    var searchIndexes: Results<RealmSearchIndex> { return self.realm.objects(RealmSearchIndex.self)
+//            guard let realmShows=getRealmShows(with: "id == \(newValue) ") else {return}
+            
+            //The requested show-id range is available
+//            if realmShows.count>0{
+//                cachedShows.removeAll(keepingCapacity: true)
+//                print("\(realmShows.count) amount of shows will be in cachedSows")
+//                cachedShows += realmShows
+//                //Refrehs table view
+//                showTableView.reloadData()
+//                //Set top position to the requested showtailIndex
+//                showTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: UITableView.ScrollPosition.top, animated: true)
+//                showCountLabel.text="\(searchShows.count) shows localy stored"
+            
+            //Reload new page from endpoint
+//            } else {
+////                print("New shows should be reloaded - because not found in local database")
+////                reloadRealmShowsFromAPI()
+//            }
+        }
     }
     
-    //Get all shows from database
-    var searchShows:Results<RealmShow>{
-        return self.realm.objects(RealmShow.self)
-    }
+   
+    
     
     
     //MARK: - ViewController Methods
     
-    func reloadRealmShowsFromAPI(){
-       
-        //Calculate page from requested show
-        let page=Int(showTailIndex/ShowsPerPage)+1
-        
-        for searcheIndex in searchIndexes{
-            if searcheIndex.page==page{
-                print("Page already in local database - show couldn't be found")
-                return
-            }
-        }
-        
-        //Fetch pages starting with the requested uncached page
-        lastFetchedPage=page
-        
-        //incremental cachSize to set top stack page limit
-        incrementalCacheSize=lastFetchedPage+maxCacheSize
-        
-        //Load new shows into the database
-        fetch(lastFetchedPage)
-    }
+//    func reloadRealmShowsFromAPI(){
+//
+//        //Calculate page from requested show
+//        let page=Int(showTailIndex/ShowsPerPage)+1
+//
+//        for searcheIndex in searchIndexes{
+//            if searcheIndex.page==page{
+//                print("Page already in local database - show couldn't be found")
+//                return
+//            }
+//        }
+//
+//        //Fetch pages starting with the requested uncached page
+//        lastFetchedPage=page
+//
+//        //incremental cachSize to set top stack page limit
+//        incrementalCacheSize=lastFetchedPage+maxCacheSize
+//
+//        //Load new shows into the database
+//        fetch(lastFetchedPage)
+//    }
    
     //MARK:- ViewController Overridables
     
@@ -178,13 +109,18 @@ class ViewController: UIViewController {
         let appDelegate=UIApplication.shared.delegate as! AppDelegate
         let appDefaults=appDelegate.loaddAppDefaults()
         
-        //Get database directory for realm browser
-        print(Realm.Configuration.defaultConfiguration.fileURL)
+        
+        
+        guard let dataManger=ShowManager.shared else {fatalError("Realm database error")}
+        let pages=dataManger.pageCache
+        
         
         
         //Update UI
         showTailIndex=appDefaults.lastShowIndex
         showIndexStepper.value=Double(showTailIndex)
+        
+        
         
     }
     
@@ -220,148 +156,6 @@ class ViewController: UIViewController {
     
 }
 
-//MARK:- Async Request pages methods
-extension ViewController{
-    //This method can be used to asynchronoulsy fetch pages
-    fileprivate func fetch(_ Page:Int){
-        if (!isLastPage && incrementalCacheSize>lastFetchedPage){
-            //Asynchronously put all fetch request in the serial queue
-            workerQueue.async {[weak self] in
-                //request page
-                self?.loadShowsBy(page:(self?.lastFetchedPage)!) {[weak self](shows, page,isEnd,status) in
-                    defer{
-                        //Check if last page reached from request?
-                        self?.isLastPage=isEnd
-                        
-                        if !isEnd{
-                            // recursively fetch next page
-                            self?.fetch((self?.lastFetchedPage)!)
-                        }
-                    }//defer
-                    
-                    //Append new shows to existing >>not threadsafe"
-                    if let shows = shows{
-                        //Serial user reside
-                        DispatchQueue.main.async {
-                            //Add shows to the database
-                            self?.addShowsFrom(page: (self?.lastFetchedPage)!, shows: shows)
-                        }
-                    }//end of if let shows
-                    
-                    //Get next page
-                    self?.lastFetchedPage += 1
-                    
-                    
-                }//loadByShows
-            }//serial async queue
-            
-        }else{
-            DispatchQueue.main.async { [weak self] in
-                //Do some operations after last page read
-                
-                //This should refresh the tableView with the new content
-                self?.showTailIndex=(self?._backingRequestedIndex)!
-                
-            }
-            
-        }
-
-        
-    }
-    
-    fileprivate func loadShowsBy(page:Int,completion:@escaping (_ shows:[Show]?,_ page:Int?,_ isLast:Bool,_ code:Int)->Void){
-        
-        
-        //1.Create url for each page
-        let pageUrl = URL(string: showsByPageEndpoint+"\(page)")
-        
-        //2. Make the request for the page
-        Alamofire.request(pageUrl!).responseJSON {[weak self] (response) in
-            switch response.result{
-            case .failure:
-                //Error ocurred the go back with no values and with the http status
-                completion(nil,nil,false,(response.response?.statusCode)!)
-                return
-            case .success:
-                //Read status code to check last page message HTTP 404
-                guard let statusCode=response.response?.statusCode else
-                    //The guard should not fail - anyway return with no shows
-                {completion(nil,nil,true,(response.response?.statusCode)!);return}
-                //Last page reached
-                if statusCode==self?.HTTP404_NO_MORE_PAGES{
-                    completion(nil,nil,true,statusCode)
-                    return
-                }
-                //Read result and decode the array to 'shows'
-                let data = response.data!
-                let jsonDecoder = JSONDecoder()
-                do{
-                    var resultShows=[Show]()
-                    let shows = try jsonDecoder.decode([Show?].self, from: data)
-                    for show in shows{
-                        if let show = show{
-                            resultShows.append(show)
-                        }
-                    }
-                    completion(resultShows,resultShows.count,false,statusCode)
-                    return
-                }catch _{
-                    
-                    
-                }
-                
-                completion(nil,nil,false,statusCode)
-                return
-            }//end of switch
-        }//end alamofire closure
-    }//end of method showsBy(...)
-    
-}//end of extension
-
-//MARK:- Realm database methods
-extension ViewController{
-    
-    func addShowsFrom(page:Int,shows:[Show]){
-        do {
-            try realm.write {
-                let newIndex = RealmSearchIndex()
-                newIndex.page = page
-                realm.add(newIndex)
-                for show in shows{
-                    //create RealmShow only with existing Show_id
-                    if let showId = show.id{
-                        let newShow = RealmShow()
-                        
-                        newShow.pageIndex=newIndex
-                        newShow.id=showId
-                        newShow.name=show.name
-                        newShow.premiered=show.premiered
-                        newShow.rating=show.rating?.average ?? 0.0
-                        newShow.status=show.status
-                        newShow.summary=show.summary
-                        newShow.type=show.type
-                    
-                        let image=RealmImage()
-                        image.setValue(show.image?.medium!, forKey: "medium")
-                        image.setValue(show.image?.original!, forKey: "original")
-                        
-                        newShow.image=image
-                        
-                        //Only the first genre type of the show will be stored
-                        if let genres = show.genres, genres.count>0{
-                            newShow.genre=genres[0]
-                        }
-                        //Add new object to database
-                        realm.add(newShow)
-                    }
-                    
-                }//end of for shows
-            }//end of realm write
-        }catch _{
-            
-        }
-    }//end of realm_addSearchIndex
-}//end of realm method extension
 
 
 //MARK:- TableView methods
